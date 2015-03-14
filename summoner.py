@@ -22,6 +22,7 @@
 #  
 #  
 
+valid_regions = ('br', 'oce', 'na', 'las', 'lan', 'euw', 'eune', 'tr', 'kr', 'ru',) #this is probably going to be useless
 
 import requests
 
@@ -39,7 +40,7 @@ class Summoner(object):
 		"""returns whether the other instance of summoner is the same as this one"""
 		return (isinstance(other, Summoner)) and (self.summonerID == other.summonerID) and (self.region == other.region)
 
-class GetSummoners
+class GetSummoners(object):
 
 	def byName(summonerNames, region, api_key):
 		"""returns a list of Summoner objects, from a list of summoner names, and region"""
@@ -67,4 +68,16 @@ class GetSummoners
 	#the fact that these functions are nearly identical is highly disturbing, and I think I should do something about it. Or maybe not.
 	#They seem perfectly happy caught up in their little class here
 	
+class Mastery(object):
+	def __init__(self, 
+	
+	
+class MasteryPage(object):
+	"""contains masteries"""
+	def __init__(self, isCurrent, pageId, masteries, name):
+		self.isCurrent = isCurrent 
+		self.pageId = pageId
+		self.masteries = masteries
+		self.name = name
 		
+	#...	
