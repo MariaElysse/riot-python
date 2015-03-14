@@ -43,7 +43,9 @@ class GetSummoners
 
 	def byName(summonerNames, region, api_key):
 		"""returns a list of Summoner objects, from a list of summoner names, and region"""
-		r = requests.get('http://{0}.api.pvp.net/api/lol/{0}/v1.4/summoner/by-name/{1}?api_key={2}'.format(region,summonerNames, api_key))
+		#I should format that into the kind of list the API expects
+		summonerNamesStr = ','.join(summonerNames)
+		r = requests.get('http://{0}.api.pvp.net/api/lol/{0}/v1.4/summoner/by-name/{1}?api_key={2}'.format(region,summonerNamesStr, api_key))
 		listOfSummoners = []
 		for summoner in r.json():
 			x = r.json()[summoner]
@@ -53,13 +55,16 @@ class GetSummoners
 	
 	def byId(summonerIds, region, api_key):
 		"""returns a list of Summoner objects, from a list of summoner ids, and region"""
-		r = requests.get('http://{0}.api.pvp.net/api/lol/{0}/v1.4/summoner/{1}?api_key={2}'.format(region,summonerNames, api_key))
+		#formatted into what the API wants
+		summonerIdsStr = ','.join(summonerIds)
+		r = requests.get('http://{0}.api.pvp.net/api/lol/{0}/v1.4/summoner/{1}?api_key={2}'.format(region,summonerIdsStr, api_key))
 		listOfSummoners = []
 		for summoner in r.json():
 			x = r.json()[summoner]
 			newSummoner = Summoner(x['id'], x['name'], x['summonerLevel'], x['profileIconId'], x['revisionDate'], x['summonerLevel'], region)
 			listOfSummoners.append(newSummoner)
 		return listOfSummoners
-	#the fact that these functions are nearly identical is highly disturbing, and I think I should do something about it
+	#the fact that these functions are nearly identical is highly disturbing, and I think I should do something about it. Or maybe not.
+	#They seem perfectly happy caught up in their little class here
 	
 		
