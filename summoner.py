@@ -68,8 +68,8 @@ class GetSummoners(object):
 	#the fact that these functions are nearly identical is highly disturbing, and I think I should do something about it. Or maybe not.
 	#They seem perfectly happy caught up in their little class here
 	
-class Mastery(object):
-	def __init__(self, 
+#class Mastery(object):
+#	def __init__(self, 
 	
 	
 class MasteryPage(object):
