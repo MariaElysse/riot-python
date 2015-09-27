@@ -1,3 +1,4 @@
 #basic gitignore for a python project so far
 
 *.pyc
+/api_key.py

@@ -22,10 +22,10 @@
 #  
 #  
 
-valid_regions = ('br', 'oce', 'na', 'las', 'lan', 'euw', 'eune', 'tr', 'kr', 'ru',) #this is probably going to be useless
-
+VALID_REGIONS = ('br', 'oce', 'na', 'las', 'lan', 'euw', 'eune', 'tr', 'kr', 'ru',) #this is probably going to be useless
+API_KEY = 
 import requests
-
+import api_key.API_KEY as API_KEY
 class Summoner(object):
 	"""Objects representing Summoners"""
 	def __init__(self, summonerID, summonerName, profileIconID, revisionDate, summonerLevel, region):
@@ -42,11 +42,11 @@ class Summoner(object):
 
 class GetSummoners(object):
 
-	def byName(summonerNames, region, api_key):
+	def byName(summonerNames, region, API_KEY):
 		"""returns a list of Summoner objects, from a list of summoner names, and region"""
 		#I should format that into the kind of list the API expects
 		summonerNamesStr = ','.join(summonerNames)
-		r = requests.get('http://{0}.api.pvp.net/api/lol/{0}/v1.4/summoner/by-name/{1}?api_key={2}'.format(region,summonerNamesStr, api_key))
+		r = requests.get('http://{0}.api.pvp.net/api/lol/{0}/v1.4/summoner/by-name/{1}?API_KEY={2}'.format(region,summonerNamesStr, API_KEY))
 		listOfSummoners = []
 		for summoner in r.json():
 			x = r.json()[summoner]
@@ -54,11 +54,11 @@ class GetSummoners(object):
 			listOfSummoners.append(newSummoner)
 		return listOfSummoners
 	
-	def byId(summonerIds, region, api_key):
+	def byId(summonerIds, region, API_KEY):
 		"""returns a list of Summoner objects, from a list of summoner ids, and region"""
 		#formatted into what the API wants
 		summonerIdsStr = ','.join(summonerIds)
-		r = requests.get('http://{0}.api.pvp.net/api/lol/{0}/v1.4/summoner/{1}?api_key={2}'.format(region,summonerIdsStr, api_key))
+		r = requests.get('http://{0}.api.pvp.net/api/lol/{0}/v1.4/summoner/{1}?API_KEY={2}'.format(region,summonerIdsStr, API_KEY))
 		listOfSummoners = []
 		for summoner in r.json():
 			x = r.json()[summoner]
@@ -68,16 +68,5 @@ class GetSummoners(object):
 	#the fact that these functions are nearly identical is highly disturbing, and I think I should do something about it. Or maybe not.
 	#They seem perfectly happy caught up in their little class here
 	
-#class Mastery(object):
-#	def __init__(self, 
-	
-	
-class MasteryPage(object):
-	"""contains masteries"""
-	def __init__(self, isCurrent, pageId, masteries, name):
-		self.isCurrent = isCurrent 
-		self.pageId = pageId
-		self.masteries = masteries
-		self.name = name
-		
-	#...	
+class MasteryPage:
+	"""Holds summoners' mastery pages. Each Summoner may have up to 20 of these."""	
