@@ -22,51 +22,57 @@
 #  
 #  
 
-VALID_REGIONS = ('br', 'oce', 'na', 'las', 'lan', 'euw', 'eune', 'tr', 'kr', 'ru',) #this is probably going to be useless
-API_KEY = 
+#TODO: create worker function to create a number of summoner objects at once.
+#TODO: modify summoner class to allow this.
+#TODO: Complete Summoner class.
 import requests
-import api_key.API_KEY as API_KEY
+import api_key
+import statics
+import datetime
+VALID_REGIONS = ('br', 'oce', 'na', 'las', 'lan', 'euw', 'eune', 'tr', 'kr', 'ru',) #this is probably going to be useless
+API_KEY = api_key.API_KEY
+DEFAULT_REGION = "NA" #seemed sensible
+
 class Summoner(object):
-	"""Objects representing Summoners"""
-	def __init__(self, summonerID, summonerName, profileIconID, revisionDate, summonerLevel, region):
-		self.summonerID = summonerID
-		self.summonerName = summonerName
-		self.summonerLevel = summonerLevel
-		self.profileIconID = profileIconID
-		self.revisionDate = revisionDate
-		self.region = region
+	"""
+	Objects representing Summoners
+	Required Parameters:
+		valid SummonerId xor SummonerName.
+	
+	Optional Parameters:
+		region (Defaults to DEFAULT_REGION, which itself defaults to "NA")
+	"""
+	
+	def __init__(self, summonerId = None, summonerName = None, region = DEFAULT_REGION):
+		if (summonerId == None) and (summonerName == None):
+			raise RuntimeError("No summonerID or Summoner Name provided.")
+		#If both are None, we got nothing and we can't work with nothing.
+		elif (summonerId != None) and (summonerName != None):
+			raise RuntimeError("Summoner ID and Summoner Name provided. Only one is needed.")
+		#If both are set, this could potentially cause undefined behavior, as summoner names and ids are unique
+		elif (summonerId == None):
+			summonerData = requests.get('https://{0}.api.pvp.net/api/lol/{0}/v1.4/summoner/by-name/{1}?api_key={2}'.format(region,summonerName, API_KEY))[summonerName]
+		#if we got a summoner name (as in, we didn't get a summoner ID'), make summoner name specific request 
+		elif (summonerName == None):
+			summonerData = requests.get('https://{0}.api.pvp.net/api/lol/{0}/v1.4/summoner/{1}?api_key={2}'.format(region, summonerId, API_KEY))[summonerId]
+		#if we got a summoner ID, as in did not get a summoner name, make summoner ID specific request.
+		#both requests are of the same format.
 		
-	def __eq__(self, other):
+		self.revisionDate = datetime.datetime.fromtimestamp(summonerData.json()['revisionDate']/1000) 
+		#convert from milliseconds to seconds
+		self.summonerId = summonerData['id']
+		self.summonerName = summonerData['name']
+		self.profileIconId = summonerData['profileIconId']
+		self.summonerLevel = summonerData['summonerLevel']
+		self.region = region 
+		
+		def __eq__(self, other):
 		"""returns whether the other instance of summoner is the same as this one"""
 		return (isinstance(other, Summoner)) and (self.summonerID == other.summonerID) and (self.region == other.region)
-
-class GetSummoners(object):
-
-	def byName(summonerNames, region, API_KEY):
-		"""returns a list of Summoner objects, from a list of summoner names, and region"""
-		#I should format that into the kind of list the API expects
-		summonerNamesStr = ','.join(summonerNames)
-		r = requests.get('http://{0}.api.pvp.net/api/lol/{0}/v1.4/summoner/by-name/{1}?API_KEY={2}'.format(region,summonerNamesStr, API_KEY))
-		listOfSummoners = []
-		for summoner in r.json():
-			x = r.json()[summoner]
-			newSummoner = Summoner(x['id'], x['name'], x['summonerLevel'], x['profileIconId'], x['revisionDate'], x['summonerLevel'], region)
-			listOfSummoners.append(newSummoner)
-		return listOfSummoners
 	
-	def byId(summonerIds, region, API_KEY):
-		"""returns a list of Summoner objects, from a list of summoner ids, and region"""
-		#formatted into what the API wants
-		summonerIdsStr = ','.join(summonerIds)
-		r = requests.get('http://{0}.api.pvp.net/api/lol/{0}/v1.4/summoner/{1}?API_KEY={2}'.format(region,summonerIdsStr, API_KEY))
-		listOfSummoners = []
-		for summoner in r.json():
-			x = r.json()[summoner]
-			newSummoner = Summoner(x['id'], x['name'], x['summonerLevel'], x['profileIconId'], x['revisionDate'], x['summonerLevel'], region)
-			listOfSummoners.append(newSummoner)
-		return listOfSummoners
-	#the fact that these functions are nearly identical is highly disturbing, and I think I should do something about it. Or maybe not.
-	#They seem perfectly happy caught up in their little class here
+	def masteryPages():
+		masteryPagesList = []
+		for 
+
+
 	
-class MasteryPage:
-	"""Holds summoners' mastery pages. Each Summoner may have up to 20 of these."""	
