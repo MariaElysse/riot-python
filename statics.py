@@ -105,18 +105,54 @@ class MasteryPage:
 	Summoner ID:	Numerical unique identifier of a Summoner. Commonly found in the Summoner object.
 	Page Number:	Can be between 0-19 (inclusive). Ordered according to the user's ordering in the client.
 	Region:			Default is NA/Whatever DEFAULT_REGION is.
+	Note: reflect changes to this mastery page class in the mass-producing function masteryPagesList().
 	"""	
 	def __init__(self, summonerId, pageNumber, region = DEFAULT_REGION):
-		r = requests.get("https://{region}.api.pvp.net/api/lol/{region}/v1.4/summoner\
+		singleMasteryPage = requests.get("https://{region}.api.pvp.net/api/lol/{region}/v1.4/summoner\
 		/{summonerId}/masteries?api_key={API_KEY}".format(region, summonerId, API_KEY)).json()[SummonerId]['pages'][pageNumber]
+		
 		self.activatedMasteries = []
-		for y in r['masteries']:
-			self.activatedMasteries.append(Mastery(y['id'], y['rank'])
-		self.name = r[SummonerId]['pages'][pageNumber]['masteries']['name']
-		self.isCurrent = r['current']
-		#Has the mastery page been used
-		self.pageId = r['id']
+		
+		for singleMastery in singleMasteryPage['masteries']:
+			self.activatedMasteries.append(Mastery(singleMastery['id'], singleMastery['rank'])
+		
+		self.name = singleMasteryPage['masteries']['name']
+		self.isCurrent = singleMasteryPage['current']
+		#Has the mastery page been used last? Is it in use now?
+		self.pageId = singleMasteryPage['id']
 		#No idea what this ID is used for, but I'm including it for the sake of completeness.
 
 	def __str__(self):
 		return "Mastery Page \"{0}\"".format(self.name)
+		
+		
+def masteryPagesList(summoner):
+	"""
+	Returns a list of the mastery pages owned by a particular Summoner
+	Takes a single Summoner object.
+	
+	Note: This function is very similar to the __init__ of MasteryPage. 
+	This may represent bad style (especially with the creation of empty MasteryPage objects),
+	however I feel like filling the normal initializerwith a way to mass-create 
+	MasteryPage objects would make it unnecessarily complex. 
+	"""
+	
+	allSummonerMasteries = requests.get("https://{region}.api.pvp.net/api/lol/{region}/v1.4/summoner\
+	/{summonerId}/masteries?api_key={API_KEY}".format(region = summoner.region, summonerId = summoner.summonerId, API_KEY).json()[summoner.summonerId]['pages']
+	summonerMasteryPages = []
+	
+	for singleMasteryPage in allSummonerMasteries:
+		
+		currentMasteryPage = MasteryPage.__new__(MasteryPage)
+		currentMasteryPage.activatedMasteries = []
+	
+		for singleMastery in singleMasteryPage['masteries']:
+			currentMasteryPage.activatedMasteries.append(Mastery(singleMastery['id'], singleMastery['rank'])
+		
+		currentMasteryPage.name = singleMasteryPage['masteries']['name']
+		currentMasteryPage.isCurrent = singleMasteryPage['current']
+		currentMasteryPage.pageId = singleMasteryPage['id']
+		
+		summonerMasteryPages.append(currentMasteryPage)
+	
+	return summonerMasteryPages
