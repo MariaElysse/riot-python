@@ -70,10 +70,8 @@ class Summoner(object):
 		def __eq__(self, other):
 		"""returns whether the other instance of summoner is the same as this one"""
 		return (isinstance(other, Summoner)) and (self.summonerID == other.summonerID) and (self.region == other.region)
+		
+		def __str__(self):
+			return "Summoner "\{0}\", Region: {1}".format(self.summonerName, self.region)
 	
-	def masteryPages():
-		masteryPagesList = []
-		for 
-
-
 	
