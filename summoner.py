@@ -53,6 +53,7 @@ class Summoner(object):
 		#If both are set, this could potentially cause undefined behavior, as summoner names and ids are unique
 		elif (summonerId == None):
 			summonerDataRequest = requests.get('https://{0}.api.pvp.net/api/lol/{0}/v1.4/summoner/by-name/{1}?api_key={2}'.format(region,summonerName, API_KEY))
+			summonerName = summonerName.lower().replace(' ','') #makethe summoner name used for the key all lowercase and free of spaces
 		#if we got a summoner name (as in, we didn't get a summoner ID'), make summoner name specific request 
 		elif (summonerName == None):
 			summonerDataRequest = requests.get('https://{0}.api.pvp.net/api/lol/{0}/v1.4/summoner/{1}?api_key={2}'.format(region, summonerId, API_KEY))
@@ -78,11 +79,11 @@ class Summoner(object):
 		self.summonerLevel = summonerData['summonerLevel']
 		self.region = region 
 		
-		def __eq__(self, other):
-			"""returns whether the other instance of summoner is the same as this one"""
-			return (isinstance(other, Summoner)) and (self.summonerID == other.summonerID) and (self.region == other.region)
+	def __eq__(self, other):
+		"""returns whether the other instance of summoner is the same as this one"""
+		return (isinstance(other, Summoner)) and (self.summonerId == other.summonerId) and (self.region == other.region)
 		
-		def __str__(self):
-			return "Summoner \"{0}\", Region: {1}".format(self.summonerName, self.region)
+	def __str__(self):
+		return "Summoner \"{0}\", Region: {1}".format(self.summonerName, self.region)
 	
 	
