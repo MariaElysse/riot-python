@@ -58,12 +58,19 @@ class Summoner(object):
 			summonerDataRequest = requests.get('https://{0}.api.pvp.net/api/lol/{0}/v1.4/summoner/{1}?api_key={2}'.format(region, summonerId, API_KEY))
 		#if we got a summoner ID, as in did not get a summoner name, make summoner ID specific request.
 		#both requests are of the same format.
+		
 		if (summonerId == None) and not summonerDataRequest.ok:
 			raise RuntimeError("Request Status {} for Summoner \"{}\".".format(summonerDataRequest.status_code, summonerName))
 		elif (summonerName == None) and not summonerDataRequest.ok:
 			raise RuntimeError("Request Status {} for Summoner with ID: {}".format(summonerDataRequest.status_code, summonerId))
-		
-		self.revisionDate = datetime.datetime.fromtimestamp(summonerData.json()['revisionDate']/1000) 
+		if (summonerId == None):
+			summonerData = summonerDataRequest.json()[summonerName]
+		elif (summonerName == None):
+			summonerData = summonerDataRequest.json()[summonerId]
+		else:
+			raise RuntimeError
+			#can't imagine what could possibly cause this to be executed.
+		self.revisionDate = datetime.datetime.fromtimestamp(summonerData['revisionDate']/1000) 
 		#convert from milliseconds to seconds
 		self.summonerId = summonerData['id']
 		self.summonerName = summonerData['name']
