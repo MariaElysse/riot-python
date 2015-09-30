@@ -25,6 +25,7 @@
 #TODO: create worker function to create a number of summoner objects at once.
 #TODO: modify summoner class to allow this.
 #TODO: Complete Summoner class.
+
 import requests
 import api_key
 import statics
