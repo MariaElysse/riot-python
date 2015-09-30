@@ -139,7 +139,7 @@ def masteryPagesList(summoner):
 	
 	r = requests.get("https://{region}.api.pvp.net/api/lol/{region}/v1.4/summoner/{summonerId}/masteries?api_key={API_KEY}".format(region = summoner.region, summonerId = summoner.summonerId, API_KEY = API_KEY))
 	if not r.ok:
-		raise RuntimeError("Error: Request status {}".format(r.status_code))
+		raise RuntimeError("Request status {} for mastery ".format(r.status_code))
 	allSummonerMasteries = r.json()[str(summoner.summonerId)]['pages']
 	
 	summonerMasteryPages = []
