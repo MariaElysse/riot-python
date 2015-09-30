@@ -32,12 +32,13 @@ import requests
 import api_key
 
 API_KEY = api_key.API_KEY
-
+DEFAULT_REGION = "na"
 r = requests.get("https://global.api.pvp.net/api/lol/static-data/na/v1.2/versions?api_key={}".format(API_KEY)).json()
 
 CURRENT_PATCH = r[0]
 #the first member in the list of patches, sorted by recency, is the most current patch
 
+allMasteryDataCurrent = requests.get("http://ddragon.leagueoflegends.com/cdn/{}/data/en_US/mastery.json".format(CURRENT_PATCH)).json()['data'] #todo:i18n
 
 class Mastery:
 	"""
@@ -48,9 +49,8 @@ class Mastery:
 	
 	self.prereq contains None if there is no prerequisite mastery.
 	""" 
-	allMasteryDataCurrent = requests.get("http://ddragon.leagueoflegends.com/cdn/{}/data/en_US/mastery.json".format(CURRENT_PATCH)).json()['data'] #todo:i18n
 
-	def __init__(self, masteryId, rank, patch = CURRENT_PATCH):
+	def __init__(self, masteryId, rank = 0, patch = CURRENT_PATCH):
 		"""
 		Initializes the Mastery object with data about that particular mastery.
 		MasteryId	: The 4-digit Mastery ID assigned by the Riot API.
@@ -58,17 +58,17 @@ class Mastery:
 		patch		: The numerical value of the patch (e.g. "5.18.1" as of 2015-SEP-28)
 					  Default value is CURRENT_PATCH, the most recent patch.
 		"""
-		if (CURRENT_PATCH = patch):
-			allMasteryData = allMasteryDataCurrent
+		if (CURRENT_PATCH == patch):
+			self.allMasteryData = allMasteryDataCurrent
 		else:
-			allMasteryData = requests.get("http://ddragon.leagueoflegends.com/cdn/{}/data/en_US/mastery.json".format(patch)).json()['data'] #todo:i18n
+			self.allMasteryData = requests.get("http://ddragon.leagueoflegends.com/cdn/{}/data/en_US/mastery.json".format(patch)).json()['data'] #todo:i18n
 		#the mastery must correspond to the specified patch,if it is not the current patch.
 		#The data from the current patch is cached, seeing as it's probably going to be the most commonly used.
 		self.masteryId = str(masteryId)
 		
 		#this block sets the member variables according to the JSON info we got 
 		#from the DataDragon API
-		
+		self.rank = rank
 		self.masteryData = self.allMasteryData[self.masteryId]
 		self.name = self.masteryData['name'] #name of mastery
 		self.description = self.masteryData['description'] 
@@ -83,7 +83,7 @@ class Mastery:
 		if (self.masteryData['prereq']=='0'):
 			self.prereq = None
 		else:
-			self.prereq = self.Mastery(masteryData['prereq'], patch)
+			self.prereq = Mastery(self.masteryData['prereq'], rank = 0, patch = patch)
 		#self.prereq is the mastery that must be active for
 		#this one to be used.
 	def __str__(self):
@@ -114,7 +114,7 @@ class MasteryPage:
 		self.activatedMasteries = []
 		
 		for singleMastery in singleMasteryPage['masteries']:
-			self.activatedMasteries.append(Mastery(singleMastery['id'], singleMastery['rank'])
+			self.activatedMasteries.append(Mastery(singleMastery['id'], singleMastery['rank']))
 		
 		self.name = singleMasteryPage['masteries']['name']
 		self.isCurrent = singleMasteryPage['current']
@@ -137,8 +137,11 @@ def masteryPagesList(summoner):
 	MasteryPage objects would make it unnecessarily complex. 
 	"""
 	
-	allSummonerMasteries = requests.get("https://{region}.api.pvp.net/api/lol/{region}/v1.4/summoner\
-	/{summonerId}/masteries?api_key={API_KEY}".format(region = summoner.region, summonerId = summoner.summonerId, API_KEY).json()[summoner.summonerId]['pages']
+	r = requests.get("https://{region}.api.pvp.net/api/lol/{region}/v1.4/summoner/{summonerId}/masteries?api_key={API_KEY}".format(region = summoner.region, summonerId = summoner.summonerId, API_KEY = API_KEY))
+	if not r.ok:
+		raise RuntimeError("Error: Request status {}".format(r.status_code))
+	allSummonerMasteries = r.json()[str(summoner.summonerId)]['pages']
+	
 	summonerMasteryPages = []
 	
 	for singleMasteryPage in allSummonerMasteries:
@@ -147,9 +150,9 @@ def masteryPagesList(summoner):
 		currentMasteryPage.activatedMasteries = []
 	
 		for singleMastery in singleMasteryPage['masteries']:
-			currentMasteryPage.activatedMasteries.append(Mastery(singleMastery['id'], singleMastery['rank'])
+			currentMasteryPage.activatedMasteries.append(Mastery(singleMastery['id'], singleMastery['rank']))
 		
-		currentMasteryPage.name = singleMasteryPage['masteries']['name']
+		currentMasteryPage.name = singleMasteryPage['name']
 		currentMasteryPage.isCurrent = singleMasteryPage['current']
 		currentMasteryPage.pageId = singleMasteryPage['id']
 		
