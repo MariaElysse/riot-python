@@ -38,45 +38,23 @@ class Summoner(object):
 	"""
 	Objects representing Summoners
 	Required Parameters:
-		valid SummonerId xor SummonerName.
+		.
 	
 	Optional Parameters:
 		region (Defaults to DEFAULT_REGION, which itself defaults to "NA")
 	"""
 	
-	def __init__(self, summonerId = None, summonerName = None, region = DEFAULT_REGION):
-		if (summonerId == None) and (summonerName == None):
-			raise RuntimeError("No summonerID or Summoner Name provided.")
-		#If both are None, we got nothing and we can't work with nothing.
-		elif (summonerId != None) and (summonerName != None):
-			raise RuntimeError("Summoner ID and Summoner Name provided. Only one is needed.")
-		#If both are set, this could potentially cause undefined behavior, as summoner names and ids are unique
-		elif (summonerId == None):
-			summonerDataRequest = requests.get('https://{0}.api.pvp.net/api/lol/{0}/v1.4/summoner/by-name/{1}?api_key={2}'.format(region,summonerName, API_KEY))
-			summonerName = summonerName.lower().replace(' ','') #makethe summoner name used for the key all lowercase and free of spaces
-		#if we got a summoner name (as in, we didn't get a summoner ID'), make summoner name specific request 
-		elif (summonerName == None):
-			summonerDataRequest = requests.get('https://{0}.api.pvp.net/api/lol/{0}/v1.4/summoner/{1}?api_key={2}'.format(region, summonerId, API_KEY))
-		#if we got a summoner ID, as in did not get a summoner name, make summoner ID specific request.
-		#both requests are of the same format.
+	def __init__(self, summonerId, summonerName, profileIconId, revisionDate, summonerLevel, region):
+		"""
+		Class takes all data provided by the Riot API and stores it in the Summoner object.
 		
-		if (summonerId == None) and not summonerDataRequest.ok:
-			raise RuntimeError("Request Status {} for Summoner \"{}\".".format(summonerDataRequest.status_code, summonerName))
-		elif (summonerName == None) and not summonerDataRequest.ok:
-			raise RuntimeError("Request Status {} for Summoner with ID: {}".format(summonerDataRequest.status_code, summonerId))
-		if (summonerId == None):
-			summonerData = summonerDataRequest.json()[summonerName]
-		elif (summonerName == None):
-			summonerData = summonerDataRequest.json()[summonerId]
-		else:
-			raise RuntimeError
-			#can't imagine what could possibly cause this to be executed.
-		self.revisionDate = datetime.datetime.fromtimestamp(summonerData['revisionDate']/1000) 
+		"""
+		self.revisionDate = datetime.datetime.fromtimestamp(revisionDate/1000) 
 		#convert from milliseconds to seconds
-		self.summonerId = summonerData['id']
-		self.summonerName = summonerData['name']
-		self.profileIconId = summonerData['profileIconId']
-		self.summonerLevel = summonerData['summonerLevel']
+		self.summonerId = summonerId
+		self.summonerName = summonerName
+		self.profileIconId = profileIconId
+		self.summonerLevel = summonerLevel
 		self.region = region 
 		
 	def __eq__(self, other):
@@ -86,4 +64,37 @@ class Summoner(object):
 	def __str__(self):
 		return "Summoner \"{0}\", Region: {1}".format(self.summonerName, self.region)
 	
-	
+	def getSummoners(summonerData, region = DEFAULT_REGION, byName = False):
+		"""
+		Takes a list, which can be either summoner names or IDs (but not both), 
+		as string or integer, and returns a list of Summoner objects.
+		Indicate whether it's a list of Names or IDs with the byName parameter,
+		which is set to False is they are summoner IDs, and True is they are summoner Names.
+		
+		As such, running the function with just one arg will assume both that it's a list of
+		"""
+		str_summonerData = ""
+		summonersList = []
+		
+		if ((type(summonerData) == str) or (type(summonerData) == int)):
+			str_summonerData = str(summonerData)
+		elif type(summonerData) == list:	
+			for x in summonerData:
+				str_summonerData += str(x) + ','
+		else:
+			raise RuntimeError("Invalid summoner data provided to function getSummoners")
+		
+		if byName:
+			r = requests.get('https://{0}.api.pvp.net/api/lol/{0}/v1.4/summoner/by-name/{1}?api_key={2}'.format(region, str_summonerData, API_KEY))
+		else:	
+			r = requests.get('https://{0}.api.pvp.net/api/lol/{0}/v1.4/summoner/{1}?api_key={2}'.format(region, str_summonerData, API_KEY))
+		if not r.ok:
+			raise RuntimeError("Request status {} for Summoner Request".format(r.status_code))
+		#trying to by DRY, but maybe this isn't the time?
+		for summoner in r.json():
+			singleSummoner = r.json()[summoner]
+			summonersList.append(Summoner(singleSummoner['id'], singleSummoner['name'], singleSummoner['profileIconId'], singleSummoner['revisionDate'], singleSummoner['summonerLevel'], region))
+		
+		return summonersList
+		
+		
