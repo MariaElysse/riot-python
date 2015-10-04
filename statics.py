@@ -159,3 +159,18 @@ def masteryPagesList(summoner):
 		summonerMasteryPages.append(currentMasteryPage)
 	
 	return summonerMasteryPages
+
+class Match:
+	"""Holds data about a single match"""
+	
+	def __init__(self, timestamp, championId, queue, season, matchid, role, lane, region = DEFAULT_REGION):
+		self.matchDateTime = datetime.datetime.fromtimestamp(timestamp/1000)
+		self.championId = championId
+		self.queue = queue
+		self.season = season
+		self.matchId = matchId
+		self.role = role
+		self.region = region
+		self.lane = lane
+
+#TODO: Complete		
