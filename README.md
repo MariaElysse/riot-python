@@ -18,7 +18,8 @@ Using
 For now, the API only supports getting Summoner objects, and some basic data relating to Summoners (Mastery Pages, etc.)
 
 For example: 
-`  cd riot-python
+```python3
+cd riot-python
 python3
 import summoner
 c9_SummonerNames = ['C9 Meteos', 'C9 StealthBomber', 'C9 Hai', 'C9 Lemon', 'C9 Balls',]
@@ -27,5 +28,18 @@ c9_summoners = summoner.getSummoners(c9_SummonerNames)
 for member in c9_summoners:
   print("Summoner Name: {}".format(member.summonerName))
   print("Last Seen: {}".format(member.revisionDate.ctime()))
-
+```
+will print:
+```
+Summoner Name: C9 Hai
+Last Seen: Fri Aug 28 22:05:15 2015
+Summoner Name: C9 Balls
+Last Seen: Sat Jun 20 20:13:06 2015
+Summoner Name: C9 Meteos
+Last Seen: Tue Oct  6 05:20:25 2015
+Summoner Name: C9 Lemon
+Last Seen: Thu Aug 27 22:57:47 2015
+Summoner Name: C9 StealthBomber
+Last Seen: Sat Jul 18 23:42:29 2015
+```
 
