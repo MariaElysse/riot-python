@@ -3,8 +3,8 @@ Python wrapper for the Riot Games API.
 
 Dependencies
 -------------
-requests <= 2.0
-Python <= 3.4 (Any Python3 is probably fine, but I haven't tested those)
+requests <= 2.0  
+Python <= 3.4 (Any Python3 is probably fine, but I haven't tested those)  
 
 Installing
 ----------
