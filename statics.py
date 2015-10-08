@@ -28,14 +28,14 @@ till I decide if they would be better as parts of others or not
 """
 
 import requests
-
 import api_key
 
 API_KEY = api_key.API_KEY
+VALID_REGIONS = ('br', 'oce', 'na', 'las', 'lan', 'euw', 'eune', 'tr', 'kr', 'ru',) #this is probably going to be useless
 DEFAULT_REGION = "na"
-r = requests.get("https://global.api.pvp.net/api/lol/static-data/na/v1.2/versions?api_key={}".format(API_KEY)).json()
-
-CURRENT_PATCH = r[0]
+r = requests.get("https://global.api.pvp.net/api/lol/static-data/na/v1.2/versions?api_key={}".format(API_KEY))
+r.raise_for_status()
+CURRENT_PATCH = r.json()[0]
 #the first member in the list of patches, sorted by recency, is the most current patch
 
 allMasteryDataCurrent = requests.get("http://ddragon.leagueoflegends.com/cdn/{}/data/en_US/mastery.json".format(CURRENT_PATCH)).json()['data'] #todo:i18n
@@ -108,9 +108,11 @@ class MasteryPage:
 	Note: reflect changes to this mastery page class in the mass-producing function masteryPagesList().
 	"""	
 	def __init__(self, summonerId, pageNumber, region = DEFAULT_REGION):
-		singleMasteryPage = requests.get("https://{region}.api.pvp.net/api/lol/{region}/v1.4/summoner\
-		/{summonerId}/masteries?api_key={API_KEY}".format(region, summonerId, API_KEY)).json()[SummonerId]['pages'][pageNumber]
+		singleMasteryPageRequest = requests.get("https://{region}.api.pvp.net/api/lol/{region}/v1.4/summoner\
+		/{summonerId}/masteries?api_key={API_KEY}".format(region, summonerId, API_KEY)).json()
+		singleMasteryPageRequest.raise_for_status()
 		
+		singleMasteryPage = singleMasteryPageRequest[SummonerId]['pages'][pageNumber]
 		self.activatedMasteries = []
 		
 		for singleMastery in singleMasteryPage['masteries']:
@@ -138,8 +140,7 @@ def masteryPagesList(summoner):
 	"""
 	
 	r = requests.get("https://{region}.api.pvp.net/api/lol/{region}/v1.4/summoner/{summonerId}/masteries?api_key={API_KEY}".format(region = summoner.region, summonerId = summoner.summonerId, API_KEY = API_KEY))
-	if not r.ok:
-		raise RuntimeError("Request status {} for mastery ".format(r.status_code))
+	r.raise_for_status()
 	allSummonerMasteries = r.json()[str(summoner.summonerId)]['pages']
 	
 	summonerMasteryPages = []
