@@ -70,36 +70,34 @@ class Summoner(object):
 	def __str__(self):
 		return "Summoner \"{0}\", Region: {1}".format(self.summonerName, self.region)
 	
-	def getSummoners(summonerData, region = DEFAULT_REGION, byId = False):
-		"""
-		Takes a list, which can be either summoner names or IDs (but not both), 
-		as string or integer, and returns a list of Summoner objects.
-		Indicate whether it's a list of Names or IDs with the byId parameter,
-		which is set to False is they are summoner names (default), and True is they are summoner IDs.
-		
-		As such, running the function with just one arg will assume both that it's a list of summoner names and the region is DEFAULT_REGION.
-		"""
-		str_summonerData = ""
-		summonersList = []
-		
-		if ((type(summonerData) == str) or (type(summonerData) == int)):
-			str_summonerData = str(summonerData)
-		elif type(summonerData) == list:	
-			for x in summonerData:
-				str_summonerData += str(x) + ','
-		else:
-			raise RuntimeError("Invalid summoner data provided to function getSummoners")
-		
-		if byId:
-			r = requests.get('https://{0}.api.pvp.net/api/lol/{0}/v1.4/summoner/{1}?api_key={2}'.format(region, str_summonerData, API_KEY))
-		else:	
-			r = requests.get('https://{0}.api.pvp.net/api/lol/{0}/v1.4/summoner/by-name/{1}?api_key={2}'.format(region, str_summonerData, API_KEY))
-		r.raise_for_status()
-		#trying to by DRY, but maybe this isn't the time?
-		for summoner in r.json():
-			singleSummoner = r.json()[summoner]
-			summonersList.append(Summoner(singleSummoner['id'], singleSummoner['name'], singleSummoner['profileIconId'], singleSummoner['revisionDate'], singleSummoner['summonerLevel'], region))
-		
-		return summonersList
-		
-		
+def getSummoners(summonerData, region = DEFAULT_REGION, byId = False):
+	"""
+	Takes a list, which can be either summoner names or IDs (but not both), 
+	as string or integer, and returns a list of Summoner objects.
+	Indicate whether it's a list of Names or IDs with the byId parameter,
+	which is set to False is they are summoner names (default), and True is they are summoner IDs.
+	
+	As such, running the function with just one arg will assume both that it's a list of summoner names and the region is DEFAULT_REGION.
+	"""
+	str_summonerData = ""
+	summonersList = []
+	
+	if ((type(summonerData) == str) or (type(summonerData) == int)):
+		str_summonerData = str(summonerData)
+	elif type(summonerData) == list:	
+		for x in summonerData:
+			str_summonerData += str(x) + ','
+	else:
+		raise RuntimeError("Invalid summoner data provided to function getSummoners")
+	
+	if byId:
+		r = requests.get('https://{0}.api.pvp.net/api/lol/{0}/v1.4/summoner/{1}?api_key={2}'.format(region, str_summonerData, API_KEY))
+	else:	
+		r = requests.get('https://{0}.api.pvp.net/api/lol/{0}/v1.4/summoner/by-name/{1}?api_key={2}'.format(region, str_summonerData, API_KEY))
+	r.raise_for_status()
+	#trying to by DRY, but maybe this isn't the time?
+	for summoner in r.json():
+		singleSummoner = r.json()[summoner]
+		summonersList.append(Summoner(singleSummoner['id'], singleSummoner['name'], singleSummoner['profileIconId'], singleSummoner['revisionDate'], singleSummoner['summonerLevel'], region))
+	
+	return summonersList
