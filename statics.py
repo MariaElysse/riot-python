@@ -174,4 +174,25 @@ class Match:
 		self.region = region
 		self.lane = lane
 
-#TODO: Complete		
+class Champion:
+    def __init__(self, id, patch = CURRENT_PATCH):
+        self.id = id #Unique Identifier string for the champion. Also is the English name.
+        championRequest = requests.get("http://ddragon.leagueoflegends.com/cdn/{0}/data/en_US/champion/{1}.json".format(patch, id))
+        championRequest.raise_for_status()
+        championData = champion_request.json()['data']
+        
+        self.name = championData['name']
+        self.title = championData['title']
+        self.blurb = championData['blurb']
+        self.info = championData['info']
+        self.imageSquare = "https://ddragon.leagueoflegends.com/cdn/{0}/img/champion/{1}.png".format(patch, self.id)
+        self.tags = championData['tags']
+        self.secondaryResource = championData['partype']
+        self.baseStats = championData['stats']
+        self.lore = championData['lore']
+        self.allyTips = championData['allytips']
+        self.enemyTips = championData['enemytips']
+        
+        
+
+#TODO: Complete. Is this even a good way to deal with this?		
