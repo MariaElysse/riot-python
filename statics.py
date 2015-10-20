@@ -179,7 +179,7 @@ class Champion:
         self.id = id #Unique Identifier string for the champion. Also is the English name.
         championRequest = requests.get("http://ddragon.leagueoflegends.com/cdn/{0}/data/en_US/champion/{1}.json".format(patch, id))
         championRequest.raise_for_status()
-        championData = champion_request.json()['data']
+        championData = championRequest.json()['data'][id]
         
         self.name = championData['name']
         self.title = championData['title']
@@ -192,7 +192,29 @@ class Champion:
         self.lore = championData['lore']
         self.allyTips = championData['allytips']
         self.enemyTips = championData['enemytips']
+        self.skins = []
+        for x in championData['skins'] :
+                skin = {'name' : x['name']}
+                skin['chromas'] = x['chromas']
+                skin['num'] = x['num']
+                self.skins.append(skin)
         
         
-
+class Spell:
+    def __init__(self, spellData):
+        self.name = spellData['name']
+        self.description = spellData['description']
+        self.maxRank = spellData['maxrank']
+        self.cooldown = []
+        for x in spellData['cooldown']:
+            self.cooldown.append(x)
+        self.cost = []
+        
+        for x in spellData['cost']:
+            self.cost.append(x)
+        
+        
+    
 #TODO: Complete. Is this even a good way to deal with this?		
+
+    
